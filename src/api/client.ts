@@ -1,11 +1,14 @@
 import { router } from 'expo-router';
 
+import { logger } from '~/lib/logger';
 import { useAuthStore } from '~/store/auth.store';
+
+const log = logger.child('api');
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 if (!BASE_URL) {
-  console.warn('[api] EXPO_PUBLIC_API_URL is not defined; requests will fail.');
+  log.warn('EXPO_PUBLIC_API_URL is not defined; requests will fail.');
 }
 
 const DEFAULT_TIMEOUT_MS = 20_000;
@@ -115,14 +118,19 @@ async function requestWithRetry<T>(
     ? mergeSignals(options.signal, controller.signal)
     : controller.signal;
 
+  const method = init.method ?? 'GET';
   let response: Response;
   try {
     response = await fetch(url, { ...init, signal });
-  } finally {
+  } catch (err) {
+    log.error(`${method} ${url} \u2014 network error`, err);
     clearTimeout(timer);
+    throw err;
   }
+  clearTimeout(timer);
 
   if (response.status === 401 && retry && !options.skipAuth) {
+    log.warn(`${method} ${url} \u2014 401, attempting refresh`);
     refreshPromise ??= performRefresh().finally(() => {
       refreshPromise = null;
     });
@@ -130,6 +138,7 @@ async function requestWithRetry<T>(
     if (next) {
       return requestWithRetry<T>(path, options, false);
     }
+    log.warn('refresh failed, clearing auth');
     useAuthStore.getState().clearAuth();
     router.replace('/(auth)/sign-in' as never);
   }
@@ -141,9 +150,11 @@ async function requestWithRetry<T>(
       (typeof data === 'object' && data && 'message' in data && String((data as { message: unknown }).message)) ||
       response.statusText ||
       `Request failed with status ${response.status}`;
+    log.error(`${method} ${url} \u2014 ${response.status} ${message}`);
     throw new ApiError(message, response.status, data);
   }
 
+  log.debug(`${method} ${url} \u2014 ${response.status}`);
   return data as T;
 }
 

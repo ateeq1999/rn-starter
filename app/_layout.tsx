@@ -3,6 +3,8 @@ import '../global.css';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useColorScheme } from 'nativewind';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -15,6 +17,11 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function RootLayout() {
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
+  const { colorScheme, setColorScheme } = useColorScheme();
+
+  useEffect(() => {
+    setColorScheme('system');
+  }, [setColorScheme]);
 
   useEffect(() => {
     if (hasHydrated) {
@@ -27,6 +34,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
         <Stack screenOptions={{ headerShown: false }} />
       </QueryClientProvider>
     </GestureHandlerRootView>
