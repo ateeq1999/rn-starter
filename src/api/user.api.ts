@@ -18,6 +18,5 @@ export const userApi = {
 
   registerDeviceToken: (data: DeviceToken) => api.post<void>('/api/users/me/device-tokens', data),
 
-  deleteDeviceToken: (token: string) =>
-    api.delete<void>(`/api/users/me/device-tokens/${encodeURIComponent(token)}`),
+  deleteDeviceToken: (token: string) => api.delete<void>(`/api/users/me/device-tokens/${encodeURIComponent(token)}`),
 };

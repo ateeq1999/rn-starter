@@ -1,12 +1,19 @@
 import { View } from 'react-native';
 
+import { SignInForm } from '~/components/forms/sign-in-form';
+import { Screen } from '~/components/layout/screen';
 import { Text } from '~/components/ui/text';
 
 export default function SignInScreen() {
   return (
-    <View className="flex-1 items-center justify-center gap-2 bg-background px-6">
-      <Text className="text-2xl font-semibold">Sign in</Text>
-      <Text className="text-muted-foreground">Form lands in RN5.1.</Text>
-    </View>
+    <Screen>
+      <View className="gap-8">
+        <View className="gap-2">
+          <Text className="text-3xl font-semibold">Welcome back</Text>
+          <Text className="text-muted-foreground">Sign in to continue.</Text>
+        </View>
+        <SignInForm />
+      </View>
+    </Screen>
   );
 }

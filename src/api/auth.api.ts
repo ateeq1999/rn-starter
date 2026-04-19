@@ -12,8 +12,7 @@ import type {
 } from '~/types/api';
 
 export const authApi = {
-  signIn: (data: SignInDto) =>
-    api.post<Session>('/api/auth/sign-in', data, { params: { token: true } }),
+  signIn: (data: SignInDto) => api.post<Session>('/api/auth/sign-in', data, { params: { token: true } }),
 
   signUp: (data: SignUpDto) => api.post<{ user: User }>('/api/auth/sign-up', data),
 
